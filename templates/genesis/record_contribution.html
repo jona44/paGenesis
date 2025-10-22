@@ -1,0 +1,129 @@
+<div class="max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold mb-6">Record Contribution</h2>
+
+    <form method="post" class="bg-white p-6 rounded-lg shadow-md space-y-6" id="contribution-form">
+        {% csrf_token %}
+
+        <!-- Display form errors at the top -->
+        {% if form.non_field_errors %}
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <ul class="text-red-600 text-sm">
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Congregant Field -->
+            <div>
+                <label for="{{ form.congregant.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Congregant *
+                </label>
+                {{ form.congregant }}
+                {% if form.congregant.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.congregant.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Activity Field -->
+            <div>
+                <label for="{{ form.activity.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Activity *
+                </label>
+                {{ form.activity }}
+                {% if form.activity.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.activity.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Payment Type Field -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Payment Type *
+            </label>
+            <div class="mt-2 space-y-2" id="payment-type-container">
+                <span>{{ form.payment_type }}</span>
+            </div>
+            {% if form.payment_type.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.payment_type.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Amount and Installment Number -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Amount Paid Field -->
+            <div>
+                <label for="{{ form.amount_paid.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Amount Paid *
+                </label>
+                {{ form.amount_paid }}
+                {% if form.amount_paid.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.amount_paid.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Installment Number Field (conditionally shown) -->
+            <div id="installment-field">
+                <label for="{{ form.installment_number.id_for_label }}"
+                    class="block text-sm font-medium text-gray-700 mb-2">
+                    Installment Number
+                </label>
+                {{ form.installment_number }}
+                {% if form.installment_number.help_text %}
+                <p class="mt-1 text-sm text-gray-500">{{ form.installment_number.help_text }}</p>
+                {% endif %}
+                {% if form.installment_number.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.installment_number.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Payment Date and Method -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Payment Date Field -->
+            <div>
+                <label for="{{ form.payment_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Payment Date *
+                </label>
+                {{ form.payment_date }}
+                {% if form.payment_date.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.payment_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Payment Method Field -->
+            <div>
+                <label for="{{ form.payment_method.id_for_label }}"
+                    class="block text-sm font-medium text-gray-700 mb-2">
+                    Payment Method *
+                </label>
+                {{ form.payment_method }}
+                {% if form.payment_method.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.payment_method.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Notes Field -->
+        <div>
+            <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Notes (Optional)
+            </label>
+            {{ form.notes }}
+            {% if form.notes.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+            <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Record Contribution & Send SMS
+            </button>
+        </div>
+    </form>
+</div>

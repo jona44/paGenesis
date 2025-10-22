@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congregation Financial App</title>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <nav class="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <!-- Desktop and Mobile Navigation Container -->
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{% url 'genesis:dashboard' %}" class="text-xl font-bold flex items-center" </a>
+                        <h1 class="text-xl font-bold flex items-center">
+                            <svg class="h-8 w-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            Genesis
+                        </h1>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="{% url 'genesis:dashboard' %}"
+                        class="flex items-center  text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors duration-200 group">
+                        <span
+                            class="material-symbols-outlined mr-2 text-blue-300 group-hover:text-white">dashboard</span>
+                        Dashboard
+                    </a>
+                    <button hx-get="{% url 'genesis:congregant_list' %}" hx-target="#genesis" hx-swap="innerHTML"
+                        hx-trigger="click" hx-push-url="true"
+                        class="flex items-center  text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors duration-200 group">
+                        <span class="material-symbols-outlined mr-2 text-green-300 group-hover:text-white">groups</span>
+                        Congregants
+                    </button>
+                    <button hx-get="{% url 'genesis:activity_list' %}" hx-target="#genesis" hx-swap="innerHTML"
+                        hx-trigger="click" hx-push-url="true"
+                        class="flex items-center  text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors duration-200 group">
+                        <span
+                            class="material-symbols-outlined mr-2 text-yellow-300 group-hover:text-white">local_activity</span>
+                        Activities
+                    </button>
+                    <button hx-get="{% url 'genesis:record_contribution' %}" hx-target="#genesis" hx-swap="innerHTML"
+                        hx-trigger="click" hx-push-url="true"
+                        class="flex items-center  text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors duration-200 group">
+                        <span
+                            class="material-symbols-outlined mr-2 text-purple-300 group-hover:text-white">post_add</span>
+                        Contribution
+                    </button>
+                    <a href="{% url 'genesis:logout' %}"
+                        class="text-white px-2 py-2 rounded-md hover:bg-red-500 transition-colors duration-200">
+                        Logout
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button type="button" onclick="toggleMenu()"
+                        class="inline-flex items-center justify-center p-2 rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition-colors duration-200">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div class="hidden md:hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-2">
+                    <a href="{% url 'genesis:dashboard' %}"
+                        class="flex items-center px-3 py-2 rounded-md text-base font-medium hover:bg-blue-500 transition-colors duration-200 group">
+                        <span
+                            class="material-symbols-outlined mr-3 text-blue-300 group-hover:text-white">dashboard</span>
+                        Dashboard
+                    </a>
+                    <button hx-get="{% url 'genesis:congregant_list' %}" hx-target="#genesis" hx-swap="innerHTML"
+                        hx-trigger="click" hx-push-url="true"
+                        class="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium hover:bg-blue-500 transition-colors duration-200 group">
+                        <span class="material-symbols-outlined mr-3 text-green-300 group-hover:text-white">groups</span>
+                        Congregants
+                    </button>
+                    <button hx-get="{% url 'genesis:activity_list' %}" hx-target="#genesis" hx-swap="innerHTML"
+                        hx-trigger="click" hx-push-url="true"
+                        class="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium hover:bg-blue-500 transition-colors duration-200 group">
+                        <span
+                            class="material-symbols-outlined mr-3 text-yellow-300 group-hover:text-white">local_activity</span>
+                        Activities
+                    </button>
+                    <button hx-get="{% url 'genesis:record_contribution' %}" hx-trigger="click" hx-target="#genesis"
+                        hx-swap="innerHTML" hx-push-url="true"
+                        class="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium hover:bg-blue-500 transition-colors duration-200 group">
+                        <span
+                            class="material-symbols-outlined mr-3 text-purple-300 group-hover:text-white">post_add</span>
+                        Contribution
+                    </button>
+                    <a href="{% url 'logout' %}"
+                        class="block px-2 py-2 rounded-md text-base font-medium hover:bg-red-500 transition-colors duration-200">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                <div
+                    class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-yellow-100 text-yellow-800{% endif %} shadow-sm">
+                    <div class="flex items-center">
+                        {% if message.tags == 'success' %}
+                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {% elif message.tags == 'error' %}
+                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        {% else %}
+                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {% endif %}
+                        <span class="flex-1">{{ message }}</span>
+                        <button onclick="this.parentElement.parentElement.remove()"
+                            class="ml-4 text-gray-400 hover:text-gray-600 focus:outline-none">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div id="genesis" class="animate-fade-in">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-blue-600 text-white border-t border-gray-200 mt-auto sticky bottom-0 w-full">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-white">
+                &copy; {% now "Y" %} Genesis Pa Khayelitsha. Made with ❤️
+            </p>
+        </div>
+    </footer>
+
+    <!-- Loading indicator for HTMX requests -->
+    <div id="htmx-indicator" class="fixed top-0 left-0 right-0 bg-blue-600 h-1 transition-all duration-300 hidden">
+        <div class="w-full h-full animate-pulse bg-white opacity-25"></div>
+    </div>
+
+    <script>
+        // Show/hide loading indicator for HTMX requests
+        document.body.addEventListener('htmx:beforeRequest', function (event) {
+            document.getElementById('htmx-indicator').classList.remove('hidden');
+        });
+        document.body.addEventListener('htmx:afterRequest', function (event) {
+            document.getElementById('htmx-indicator').classList.add('hidden');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function (event) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuButton = document.querySelector('button[onclick="toggleMenu()"]');
+
+            if (!mobileMenu.contains(event.target) && !menuButton.contains(event.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // Add custom Tailwind animations
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+</body>
+
+</html>

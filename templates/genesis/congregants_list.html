@@ -1,0 +1,134 @@
+<div class="bg-white rounded-lg shadow-md">
+    <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-bold">Congregant List</h2>
+            <p class="mt-1 text-sm text-gray-600">Browse and manage all congregants.</p>
+        </div>
+        <button hx-get="{% url 'genesis:add_congregant' %}" hx-target="#genesis" hx-push-url="true" hx-swap="innerHTML"
+            hx-trigger="click"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Add Congregant
+        </button>
+    </div>
+
+    <!-- Search Form -->
+    <div class="border-t border-gray-200 px-4 py-4 sm:px-6">
+        <form method="get" class="flex items-center space-x-3" novalidate>
+            <input type="search" name="q" value="{{ request.GET.q|default_if_none:'' }}"
+                class="w-full md:w-1/3 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Search by name, phone, email...">
+            <button type="submit"
+                class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                Search
+            </button>
+            <a href="{% url 'genesis:congregant_list' %}" class="text-blue-600 hover:underline">Reset</a>
+        </form>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact
+                    </th>
+
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for c in congregants %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">
+                            <a hx-get="{% url 'genesis:congregant_detail' c.id %}" hx-target="#genesis"
+                                hx-push-url="true" hx-swap="innerHTML" class="text-blue-600 hover:underline">{{ c.title }}
+                                {{ c.first_name }}</a>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div>{{ c.phone_number|default:"—" }}</div>
+                        <div><a href="mailto:{{ c.email }}" class="text-blue-600 hover:underline">{{ c.email }}</a>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <button
+                        hx-get="{% url 'genesis:congregant_detail' c.pk %}" 
+                        hx-target="#genesis" 
+                        hx-push-url="true"
+                        hx-swap="innerHTML"
+                        class="text-indigo-600 hover:text-indigo-900">View
+                    </button>
+                    <button
+                        hx-get="{% url 'genesis:congregant_edit' c.pk %}" 
+                        hx-target="#genesis" 
+                        hx-push-url="true"
+                        hx-swap="innerHTML" 
+                        class="text-green-600 hover:text-green-900">Edit
+                    </button>
+                    <button
+                        hx-get="{% url 'genesis:congregant_delete' c.pk %}" 
+                        hx-target="#genesis" 
+                        hx-push-url="true"
+                        hx-swap="innerHTML" 
+                        class="text-red-600 hover:text-red-900">Delete
+                    </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                        No congregants found. Try adjusting your search or <a href="{% url 'genesis:add_congregant' %}"
+                            class="text-blue-600 hover:underline">add a new congregant</a>.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if congregants.has_other_pages %}
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="flex-1 flex justify-between sm:hidden">
+            <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ congregants.previous_page_number }}"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Previous </a>
+            <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ congregants.next_page_number }}"
+                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Next </a>
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Showing <span class="font-medium">{{ congregants.start_index }}</span> to <span
+                        class="font-medium">{{ congregants.end_index }}</span> of <span class="font-medium">{{
+                        congregants.paginator.count }}</span> results
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page=1"
+                        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">First</a>
+                    {% if congregants.has_previous %}
+                    <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ congregants.previous_page_number }}"
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        Prev </a>
+                    {% endif %}
+                    <span
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                        Page {{ congregants.number }} of {{ congregants.paginator.num_pages }} </span>
+                    {% if congregants.has_next %}
+                    <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ congregants.next_page_number }}"
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        Next </a>
+                    {% endif %}
+                    <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ congregants.paginator.num_pages }}"
+                        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Last</a>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    </div>

@@ -1,0 +1,185 @@
+<div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+    <h2 class="text-2xl font-bold mb-6">Create New Activity</h2>
+
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+
+        <!-- Basic Fields -->
+        <div class="grid grid-cols-1 gap-4">
+            <div>
+                <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Activity Name *
+                </label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Description
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.contribution_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Contribution Type *
+                </label>
+                {{ form.contribution_type }}
+                {% if form.contribution_type.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.contribution_type.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Dynamic Amount Fields -->
+        <div id="amount-fields">
+            <!-- One-time and Monthly Amount -->
+            <div id="regular-amount-field">
+                <label for="{{ form.amount.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <span id="amount-label">Amount *</span>
+                </label>
+                {{ form.amount }}
+                {% if form.amount.help_text %}
+                <p class="mt-1 text-sm text-gray-500">{{ form.amount.help_text }}</p>
+                {% endif %}
+                {% if form.amount.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.amount.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Installment Total Amount -->
+            <div id="installment-amount-field" class="hidden">
+                <label for="{{ form.total_amount.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Total Amount *
+                </label>
+                {{ form.total_amount }}
+                {% if form.total_amount.help_text %}
+                <p class="mt-1 text-sm text-gray-500">{{ form.total_amount.help_text }}</p>
+                {% endif %}
+                {% if form.total_amount.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.total_amount.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Date Fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Start Date *
+                </label>
+                {{ form.start_date }}
+                {% if form.start_date.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.start_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    End Date
+                </label>
+                {{ form.end_date }}
+                {% if form.end_date.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.end_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Activity Summary -->
+        <div id="activity-summary" class="p-4 bg-blue-50 rounded-md hidden">
+            <h4 class="font-semibold text-blue-800 mb-2">Activity Summary:</h4>
+            <p id="summary-text" class="text-blue-700"></p>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+            <button 
+                hx-get="{% url 'genesis:activity_list' %}" 
+                hx-target="#genesis" 
+                hx-swap="innerHTML"
+                hx-trigger="click" 
+                hx-push-url="true"
+                class="inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <span
+                    class="material-symbols-outlined mr-2 text-yellow-300 group-hover:text-white">local_activity</span>
+                cancel
+            </button>
+            <button type="submit"
+                class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Create Activity
+            </button>
+        </div>
+    </form>
+</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const contributionType = document.querySelector('#id_contribution_type');
+        const amountField = document.querySelector('#id_amount');
+        const totalAmountField = document.querySelector('#id_total_amount');
+        const regularAmountDiv = document.querySelector('#regular-amount-field');
+        const installmentAmountDiv = document.querySelector('#installment-amount-field');
+        const amountLabel = document.querySelector('#amount-label');
+        const activitySummary = document.querySelector('#activity-summary');
+        const summaryText = document.querySelector('#summary-text');
+
+        function updateFormVisibility() {
+            const type = contributionType.value;
+
+            if (type === 'installment') {
+                regularAmountDiv.classList.add('hidden');
+                installmentAmountDiv.classList.remove('hidden');
+                amountLabel.textContent = 'Installment plans use total amount. Deposit and installment amounts will be set when congregants enroll.';
+            } else {
+                regularAmountDiv.classList.remove('hidden');
+                installmentAmountDiv.classList.add('hidden');
+
+                if (type === 'monthly') {
+                    amountLabel.textContent = 'Monthly Amount *';
+                } else {
+                    amountLabel.textContent = 'Amount *';
+                }
+            }
+
+            updateActivitySummary();
+        }
+
+        function updateActivitySummary() {
+            const type = contributionType.value;
+            const amount = parseFloat(amountField.value) || 0;
+            const totalAmount = parseFloat(totalAmountField.value) || 0;
+
+            let summary = '';
+
+            if (type === 'one_time') {
+                summary = `One-time contribution: $${amount.toFixed(2)}`;
+            } else if (type === 'monthly') {
+                summary = `Monthly contribution: $${amount.toFixed(2)} per month`;
+            } else if (type === 'installment') {
+                summary = `Installment plan: Total $${totalAmount.toFixed(2)}`;
+                summary += ` (Deposit and installment amounts will be set per congregant)`;
+            }
+
+            if (summary) {
+                summaryText.textContent = summary;
+                activitySummary.classList.remove('hidden');
+            } else {
+                activitySummary.classList.add('hidden');
+            }
+        }
+
+        // Event listeners
+        contributionType.addEventListener('change', updateFormVisibility);
+        amountField.addEventListener('input', updateActivitySummary);
+        totalAmountField.addEventListener('input', updateActivitySummary);
+
+        // Initialize form visibility
+        updateFormVisibility();
+    });
+</script>

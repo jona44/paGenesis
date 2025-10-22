@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container" id="genesis">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Statistics Cards -->
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+            <span
+                class="material-symbols-outlined text-4xl text-blue-500 bg-blue-100 p-3 rounded-full mr-4">groups</span>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-700">Total Congregants</h3>
+                <p class="text-3xl font-bold text-blue-600">{{ total_congregants }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+            <span
+                class="material-symbols-outlined text-4xl text-green-500 bg-green-100 p-3 rounded-full mr-4">local_activity</span>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-700">Active Activities</h3>
+                <p class="text-3xl font-bold text-green-600">{{ active_activities }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+            <span
+                class="material-symbols-outlined text-4xl text-purple-500 bg-purple-100 p-3 rounded-full mr-4">payments</span>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-700">This Month's Total</h3>
+                <p class="text-3xl font-bold text-purple-600">${{ monthly_total }}</p>
+            </div>
+        </div>
+    </div>
+
+
+
+<!-- Activity Filter Buttons -->
+    <div class="mb-4 flex flex-wrap gap-3">
+        <button hx-get="{% url 'genesis:dashboard' %}" hx-target="#contributions-table" hx-swap="outerHTML"
+            class="px-4 py-2 rounded-lg text-sm font-medium {% if not selected_activity_id %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700{% endif %}">
+            All Activities
+        </button>
+
+        {% for activity in activities %}
+            <button hx-get="?activity={{ activity.id }}" hx-target="#contributions-table" hx-swap="outerHTML"
+                class="px-4 py-2 rounded-lg text-sm font-medium {% if activity.id == selected_activity_id %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                {{ activity.name }}
+            </button>
+        {% endfor %}
+    </div>
+
+    <!-- Table Container for HTMX -->
+    <div id="contributions-table">
+        {% include 'genesis/_contributions_table.html' %}
+    </div>
+</div>
+
+<!-- Include HTMX -->
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+{% endblock %}
