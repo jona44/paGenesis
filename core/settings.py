@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_htmx',
     'twilio',
     'widget_tweaks',
+    
 ]
 
 MIDDLEWARE = [
@@ -122,7 +123,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 # In your settings.py
-LOGIN_REDIRECT_URL = '/' 
+LOGIN_URL = 'login' 
 LOGOUT_REDIRECT_URL = '/' # Optional: where to redirect after logout
 
 
