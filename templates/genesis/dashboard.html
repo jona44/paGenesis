@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container" id="genesis">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Statistics Cards -->
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+            <span
+                class="material-symbols-outlined text-4xl text-blue-500 bg-blue-100 p-3 rounded-full mr-4">groups</span>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-700">Total Congregants</h3>
+                <p class="text-3xl font-bold text-blue-600">{{ total_congregants }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+            <span
+                class="material-symbols-outlined text-4xl text-green-500 bg-green-100 p-3 rounded-full mr-4">local_activity</span>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-700">Active Activities</h3>
+                <p class="text-3xl font-bold text-green-600">{{ active_activities }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+            <span
+                class="material-symbols-outlined text-4xl text-purple-500 bg-purple-100 p-3 rounded-full mr-4">payments</span>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-700">This Month's Total</h3>
+                <p class="text-3xl font-bold text-purple-600">${{ monthly_total }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Monthly Contributions (Current Year)</h3>
+        <div class="h-64">
+            <canvas id="monthlyContributionsChart"></canvas>
+        </div>
+    </div>
+
+    {{ chart_labels|json_script:"chart-labels-data" }}
+    {{ chart_datasets|json_script:"chart-datasets-data" }}
+
+
+
+<!-- Activity Filter Buttons -->
+    <div class="mb-4 flex flex-wrap gap-3">
+        <button hx-get="{% url 'genesis:dashboard' %}" hx-target="#contributions-table" hx-swap="outerHTML"
+            class="px-4 py-2 rounded-lg text-sm font-medium {% if not selected_activity_id %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700{% endif %}">
+            All Activities
+        </button>
+
+        {% for activity in activities %}
+            <button hx-get="?activity={{ activity.id }}" hx-target="#contributions-table" hx-swap="outerHTML"
+                class="px-4 py-2 rounded-lg text-sm font-medium {% if activity.id == selected_activity_id %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                {{ activity.name }}
+            </button>
+        {% endfor %}
+
+        <a href="{% url 'genesis:export_contributions_csv' %}{% if selected_activity_id %}?activity={{ selected_activity_id }}{% endif %}" 
+           class="px-4 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 flex items-center ml-auto">
+            <span class="material-symbols-outlined text-sm mr-2">description</span>
+            Export CSV
+        </a>
+    </div>
+
+    <!-- Table Container for HTMX -->
+    <div id="contributions-table">
+        {% include 'genesis/_contributions_table.html' %}
+    </div>
+</div>
+
+<!-- Include HTMX -->
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const labelsData = JSON.parse(document.getElementById('chart-labels-data').textContent);
+        const datasetsRaw = JSON.parse(document.getElementById('chart-datasets-data').textContent || '[]');
+        
+        const colors = [
+            'rgb(59, 130, 246)',  // Blue
+            'rgb(16, 185, 129)',  // Green
+            'rgb(245, 158, 11)',  // Amber
+            'rgb(139, 92, 246)',  // Violet
+            'rgb(236, 72, 153)',  // Pink
+            'rgb(20, 184, 166)',  // Teal
+            'rgb(249, 115, 22)',  // Orange
+            'rgb(107, 114, 128)'  // Gray
+        ];
+
+        const chartDatasets = datasetsRaw.map((ds, index) => {
+            const color = colors[index % colors.length];
+            const isTotal = ds.is_total || false;
+            
+            return {
+                label: ds.label,
+                data: ds.data,
+                borderColor: color,
+                backgroundColor: isTotal ? color.replace('rgb', 'rgba').replace(')', ', 0.1)') : 'transparent',
+                borderWidth: isTotal ? 3 : 2,
+                fill: isTotal,
+                tension: 0.3,
+                borderDash: isTotal ? [] : [5, 5] // Dash lines for individual activities for contrast
+            };
+        });
+        
+        const ctx = document.getElementById('monthlyContributionsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labelsData,
+                datasets: chartDatasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 6
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,170 @@
+<div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+    <h2 class="text-2xl font-bold mb-6">Create New Activity</h2>
+
+{% load widget_tweaks %}
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+
+        <!-- Basic Fields -->
+        <div class="grid grid-cols-1 gap-4">
+            <div>
+                <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Activity Name *
+                </label>
+                {% render_field form.name class="mt-1 block w-full px-3 py-3 rounded-md border border-blue-300 hover:border-blue-300 hover:border-4 focus:ring-blue-300 focus:border-blue-300" %}
+                {% if form.name.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Description
+                </label>
+                {% render_field form.description class="mt-1 block w-full px-3 py-3 rounded-md border border-blue-300 hover:border-blue-300 hover:border-4 focus:ring-blue-300 focus:border-blue-300" %}
+                {% if form.description.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.contribution_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Contribution Type *
+                </label>
+                {% render_field form.contribution_type class="mt-1 block w-full px-3 py-3 rounded-md border border-blue-300 hover:border-blue-300 hover:border-4 focus:ring-blue-300 focus:border-blue-300" %}
+                {% if form.contribution_type.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.contribution_type.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Dynamic Amount Fields -->
+        <div id="amount-fields">
+            <!-- One-time and Monthly Amount -->
+            <div id="regular-amount-field">
+                <label for="{{ form.amount.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <span id="amount-label">Amount *</span>
+                </label>
+                {% render_field form.amount class="mt-1 block w-full px-3 py-3 rounded-md border border-blue-300 hover:border-blue-300 hover:border-4 focus:ring-blue-300 focus:border-blue-300" %}
+                {% if form.amount.help_text %}
+                <p class="mt-1 text-sm text-gray-500">{{ form.amount.help_text }}</p>
+                {% endif %}
+                {% if form.amount.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.amount.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- Date Fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Start Date *
+                </label>
+                {% render_field form.start_date class="mt-1 block w-full px-3 py-3 rounded-md border border-blue-300 hover:border-blue-300 hover:border-4 focus:ring-blue-300 focus:border-blue-300" %}
+                {% if form.start_date.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.start_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    End Date
+                </label>
+                {% render_field form.end_date class="mt-1 block w-full px-3 py-3 rounded-md border border-blue-300 hover:border-blue-300 hover:border-4 focus:ring-blue-300 focus:border-blue-300" %}
+                {% if form.end_date.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.end_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Activity Summary -->
+        <div id="activity-summary" class="p-4 bg-blue-50 rounded-md hidden">
+            <h4 class="font-semibold text-blue-800 mb-2">Activity Summary:</h4>
+            <p id="summary-text" class="text-blue-700"></p>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+            <button 
+                hx-get="{% url 'genesis:activity_list' %}" 
+                hx-target="#genesis" 
+                hx-swap="innerHTML"
+                hx-trigger="click" 
+                hx-push-url="true"
+                class="inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <span
+                    class="material-symbols-outlined mr-2 text-yellow-300 group-hover:text-white">local_activity</span>
+                cancel
+            </button>
+            <button type="submit"
+                class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Create Activity
+            </button>
+        </div>
+    </form>
+</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const contributionType = document.querySelector('#id_contribution_type');
+        const amountField = document.querySelector('#id_amount');
+        const regularAmountDiv = document.querySelector('#regular-amount-field');
+        const installmentAmountDiv = document.querySelector('#installment-amount-field');
+        const amountLabel = document.querySelector('#amount-label');
+        const activitySummary = document.querySelector('#activity-summary');
+        const summaryText = document.querySelector('#summary-text');
+
+        function updateFormVisibility() {
+            const type = contributionType.value;
+
+            if (type === 'installment') {
+                // installment plans use regular amount as total goal
+                regularAmountDiv.classList.remove('hidden');
+                amountLabel.textContent = 'Target Total Amount (Installment plans use this as a goal)';
+            } else {
+                regularAmountDiv.classList.remove('hidden');
+                installmentAmountDiv.classList.add('hidden');
+
+                if (type === 'monthly') {
+                    amountLabel.textContent = 'Monthly Amount *';
+                } else {
+                    amountLabel.textContent = 'Amount *';
+                }
+            }
+
+            updateActivitySummary();
+        }
+
+        function updateActivitySummary() {
+            const type = contributionType.value;
+            const amount = parseFloat(amountField.value) || 0;
+
+            let summary = '';
+
+            if (type === 'one_time') {
+                summary = `One-time contribution: $${amount.toFixed(2)}`;
+            } else if (type === 'monthly') {
+                summary = `Monthly contribution: $${amount.toFixed(2)} per month`;
+            } else if (type === 'installment') {
+                summary = `Installment plan: Total $${amount.toFixed(2)}`;
+                summary += ` (Individual targets will be tracked)`;
+            }
+
+            if (summary) {
+                summaryText.textContent = summary;
+                activitySummary.classList.remove('hidden');
+            } else {
+                activitySummary.classList.add('hidden');
+            }
+        }
+
+        // Event listeners
+        contributionType.addEventListener('change', updateFormVisibility);
+        amountField.addEventListener('input', updateActivitySummary);
+
+        // Initialize form visibility
+        updateFormVisibility();
+    });
+</script>

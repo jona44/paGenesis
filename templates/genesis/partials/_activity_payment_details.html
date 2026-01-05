@@ -1,0 +1,43 @@
+{% if not activity %}
+<p class="text-gray-600">Select an activity to see payment options</p>
+{% else %}
+<h4 class="text-lg font-semibold mb-4">Payment Details for: {{ activity.name }}</h4>
+
+<div class="space-y-4">
+    {% if activity.contribution_type == 'one_time' %}
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Amount</label>
+        <input type="number" name="amount_paid" value="{{ activity.base_amount }}" required
+            class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
+            readonly>
+        <p class="mt-1 text-sm text-gray-500">This is a one-time payment activity.</p>
+    </div>
+
+    {% elif activity.contribution_type == 'monthly' %}
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Monthly Amount</label>
+        <input type="number" name="amount_paid" value="{{ activity.base_amount }}" required
+            class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
+            readonly>
+        <p class="mt-1 text-sm text-gray-500">This is a monthly contribution.</p>
+    </div>
+
+    {% elif activity.contribution_type == 'installment' %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Payment Type</label>
+            <select name="payment_type"
+                class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option value="deposit">Deposit (${{ activity.deposit_amount }})</option>
+                <option value="installment">Installment (${{ activity.base_amount }})</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Amount to Pay</label>
+            <input type="number" name="amount_paid" value="{{ activity.deposit_amount }}" required
+                class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}

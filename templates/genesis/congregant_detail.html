@@ -1,0 +1,41 @@
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <!-- Header Section -->
+    <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+        <div class="flex justify-between items-center flex-wrap gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">{{ congregant.title }} {{ congregant.first_name }}</h2>
+                <div class="mt-2 flex items-center text-sm text-gray-600 space-x-4">
+                    <span class="flex items-center">
+                        <span class="material-symbols-outlined text-lg mr-1">phone</span>
+                        {{congregant.phone_number|default:"N/A"}}
+                    </span>
+                    <span class="flex items-center">
+                        <span class="material-symbols-outlined text-lg mr-1">email</span>
+                        <a href="mailto:{{ congregant.email }}" class="text-blue-600 hover:underline">{{
+                            congregant.email|default:"N/A" }}</a>
+                    </span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button hx-get="{% url 'genesis:congregant_edit' congregant.pk %}" hx-target="#genesis"
+                    hx-push-url="true"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700">
+                    <span class="material-symbols-outlined mr-2 text-sm">edit</span>
+                    Edit
+                </button>
+                <button hx-get="{% url 'genesis:congregant_delete' congregant.pk %}" hx-target="#genesis"
+                    hx-push-url="true"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700">
+                    <span class="material-symbols-outlined mr-2 text-sm">delete</span>
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- This div will be the target for our HTMX swaps -->
+    <div id="contributions-section">
+        <!-- Include the contributions table wrapper for HTMX swapping -->
+        {% include 'genesis/partials/_congregant_contributions_wrapper.html' %}
+    </div>
+</div>

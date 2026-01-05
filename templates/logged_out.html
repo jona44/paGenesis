@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Genesis — Logged Out</title>
+    <!-- Tailwind via CDN for quick standalone styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Small page-level tweaks to match the in-project look */
+        body {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="min-h-full flex items-center justify-center mt-10">
+        <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8 mt-10">
+        <div>
+                <h2 class="text-center text-2xl font-semibold text-gray-800 mb-6">Logged Out</h2>
+                <p class="text-center text-gray-600 mb-6">You have been successfully logged out.</p>
+                <div class="mt-4 text-center">
+                    <a href="{% url 'login' %}" class="text-sm text-indigo-600 hover:underline">Log in again</a>
+                </div>
+        </div>
+        </div>
+    </div>
+</body>
+
+</html>
